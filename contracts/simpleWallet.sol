@@ -5,16 +5,20 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contr
 contract Allowance is Onwable {
     mapping(address => uint) public allowance;
 
+    event allowanceChanged(address indexed _forWho, address indexed _fromWhom, uint _newAmount);
+
     modifier ownerOrAllowed(uint _amount) {
         require(owner() == msg.sender || allowance[msg.sender] >= _amount, "You are not allowed");
         _;
     }
 
     function addAllowance(address _who, uint _amount) public onlyOwner {
+        emit allowanceChanged(_who, msg.sender, allowance[_who], _amount);
         allowance[_who] = _amount;
     }
 
     function reduceAllowance(address _who, uint _amount) internal {
+        emit allowanceChanged(_who, msg.sender, allowance[_who], allowance[_who] - _amount);
         allowance[_who] -= _amount;
     }
 }
